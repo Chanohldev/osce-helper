@@ -11,7 +11,7 @@ export type StreamChunk = {
 /**
  * Procesa los chunks del stream y devuelve un mensaje estructurado.
  */
-export const processAssistantStream = async (chunks: StreamChunk[]): Promise<string> => {
+export const processAssistantStream = async (chunks: (StreamChunk | string)[]): Promise<string> => {
   let fullContent = "";
 
   for (const chunk of chunks) {
@@ -44,9 +44,9 @@ export const processAssistantStream = async (chunks: StreamChunk[]): Promise<str
       } else {
         console.log("chunk es un objeto");
         // Procesa objetos StreamChunk normales
-        if (chunk.threadId) threadId = chunk.threadId;
-        if (chunk.messageId) messageId = chunk.messageId;
-        if (chunk.role) role = chunk.role;
+        if (chunk.threadId || chunk.messageId || chunk.id) {
+            console.log("chunk.threadId",chunk.threadId);
+        } 
 
         if (chunk.content) {
           chunk.content.forEach((item) => {
