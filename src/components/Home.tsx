@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { authService, User } from '../services/authService';
-import { chatService, Conversation, Message } from '../services/chatService';
+import { chatService, Conversation } from '../services/chatService';
 import { ChatSidebar } from './ChatSidebar';
 import { ChatHeader } from './ChatHeader';
 import { ChatMessages } from './ChatMessages';
@@ -46,8 +46,8 @@ export const Home = () => {
     setCurrentConversation(chatService.getCurrentConversation());
   };
 
-  const handleNewConversation = () => {
-    const newConversation = chatService.createNewConversation();
+  const handleNewConversation = async () => {
+    const newConversation = await chatService.createNewConversation();
     setCurrentConversation(newConversation);
   };
 
