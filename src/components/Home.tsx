@@ -47,8 +47,8 @@ export const Home = () => {
   };
 
   const handleNewConversation = async () => {
-    const newConversation = await chatService.createNewConversation();
-    setCurrentConversation(newConversation);
+    /*const newConversation = await chatService.createNewConversation();
+    setCurrentConversation(newConversation);*/
   };
 
   const handleSendMessage = async (content: string) => {
@@ -79,9 +79,9 @@ export const Home = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen w-full bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 overflow-hidden`}>
+      <div className={`${isSidebarOpen ? 'w-[260px] min-w-[260px]' : 'w-0'} transition-all duration-300 overflow-hidden`}>
         <div className="h-full">
           <ChatSidebar
             onConversationSelect={handleConversationSelect}
@@ -92,12 +92,12 @@ export const Home = () => {
       </div>
       
       {/* Main content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <div className="bg-white dark:bg-gray-800 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-              ChatGPT Clone
+            InterpretaLex
             </h1>
             <div className="flex items-center space-x-4">
               <button

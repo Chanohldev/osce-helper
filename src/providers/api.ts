@@ -1,29 +1,26 @@
-import { processAssistantStream, StreamChunk } from "../helper/assistantStreamHelper";
-
-const API_URL = "https://v0-backend-de-intrepreta-lex-ai.vercel.app/api";
-const API_KEY = "api_key_test";
+import { API_URL } from "../config/api.config";
+import { authService } from "../services/authService";
 
 type ThreadResponse = {
-  success: boolean;
-  data?: {
-    id: string;
-    createdAt: string;
-    metadata: Record<string, any>;
-  };
-  error?: string;
+  id: string;
+  createdAt: string;
+  metadata: Record<string, any>;
 };
 
-export const createThread = async (): Promise<ThreadResponse> => {
+export const createThread = async (
+  title: string,
+  description: string
+): Promise<ThreadResponse> => {
   try {
-    const response = await fetch(`${API_URL}/assistant/threads`, {
+    const response = await fetch(`${API_URL}/threads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": API_KEY,
+        Authorization: `Bearer ${authService.getCurrentUser()?.token}`,
       },
       body: JSON.stringify({
-        message: "Hola",
-        jsonResponse: false,
+        title,
+        description,
       }),
     });
 
@@ -35,25 +32,24 @@ export const createThread = async (): Promise<ThreadResponse> => {
     return data;
   } catch (error) {
     console.error("Error creating thread:", error);
-    return { success: false, error: "Error al crear el hilo de conversación" };
+    throw error;
   }
-}
+};
 
 export const sendChatMessage = async (
   threadId: string,
   message: string
-): Promise<string> =>{
+): Promise<string> => {
   try {
-    const response = await fetch(`${API_URL}/assistant/chat`, {
+    const response = await fetch(`${API_URL}/question`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": API_KEY,
+        Authorization: `Bearer ${authService.getCurrentUser()?.token}`,
       },
       body: JSON.stringify({
         threadId,
-        message,
-        jsonResponse: false,
+        question: message,
       }),
     });
 
@@ -61,11 +57,14 @@ export const sendChatMessage = async (
       throw new Error(`Error: ${response.status}`);
     }
 
-    const text = await response.text();
-    console.log("text",text);
-    return await processAssistantStream(text.split("\n") as unknown as StreamChunk[]);
+    const text = await response.json();
+    console.log("text", text);
+    /*return await processAssistantStream(
+      text.split("\n") as unknown as StreamChunk[]
+    );*/
+    return text.message;
   } catch (error) {
     console.error("Error sending chat message:", error);
     throw error;
   }
-}   
+};
