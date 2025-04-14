@@ -11,8 +11,8 @@ interface ChatMessagesProps {
 
 const formatMarkdown = (text: string) => {
   return text
-  .replace(/\\n/g, '\n') // reemplaza "\n" como texto por saltos reales de línea
-  .replace(/\[\d+:\d+†.*?\]/g, ''); // elimina referencias tipo [6:0†...]
+  //.replace(/\\n/g, '\n') // reemplaza "\n" como texto por saltos reales de línea
+  //.replace(/\[\d+:\d+†.*?\]/g, ''); // elimina referencias tipo [6:0†...]
 };
 
 

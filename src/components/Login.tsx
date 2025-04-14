@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import { Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 
 export const Login = () => {
@@ -48,6 +49,12 @@ export const Login = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             Welcome Back
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+            ¿No tienes una cuenta?{' '}
+            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+              Regístrate aquí
+            </Link>
+          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">

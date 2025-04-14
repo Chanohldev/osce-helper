@@ -1,6 +1,8 @@
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GOOGLE_CLIENT_ID } from './config/google';
 import { Login } from './components/Login';
+import { Register } from './pages/Register';
 import { Home } from './components/Home';
 import { authService } from './services/authService';
 import { useEffect, useState } from 'react';
@@ -33,9 +35,15 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      {isAuthenticated ? <Home /> : <Login />}
+      <Router>
+        <Routes>
+          <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
+          <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
+          <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
+        </Routes>
+      </Router>
       
-      {/* Global theme toggle button - only visible on login page */}
+      {/* Global theme toggle button - only visible on login/register pages */}
       {!isAuthenticated && (
         <button
           onClick={toggleDarkMode}
