@@ -26,7 +26,7 @@ export const Register = () => {
     setLoading(true);
 
     try {
-      const response = await authService.register(formData.email, formData.password, formData.name);
+      await authService.register(formData.email, formData.password, formData.name);
       // Aquí puedes manejar la respuesta exitosa
       navigate('/login'); // Redirige al login después del registro exitoso
     } catch (err) {
