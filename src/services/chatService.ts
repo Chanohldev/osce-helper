@@ -1,6 +1,7 @@
-import { createThread, sendChatMessage } from "../providers/api";
+import { createThread, getMessages, sendChatMessage } from "../providers/api";
 import { API_URL } from "../config/api.config";
 import { authService } from "./authService";
+
 export interface Message {
   id: string;
   content: string;
@@ -73,10 +74,30 @@ class ChatService {
     );
   }
 
-  setCurrentConversation(conversationId: string): void {
+  async setCurrentConversation(conversationId: string): Promise<void> {
     if (this.conversations.some((conv) => conv.id === conversationId)) {
       this.currentConversationId = conversationId;
     }
+
+    const messages = await getMessages(conversationId);
+
+    const conversation = this.conversations.find(
+      (conv) => conv.id === conversationId
+    );
+    if (!conversation) {
+      throw new Error("Conversación no encontrada");
+    }
+
+    const messageHistory: Message[] = messages.map((a: any) => {
+      return {
+        id: new Date().getTime().toString(),
+        content: a.message,
+        role: a.role,
+        timestamp: a.createdAt,
+      };
+    });
+
+    conversation.messages.push(...messageHistory);
     console.log("setCurrentConversation", conversationId, this.currentConversationId);
   }
 

@@ -68,3 +68,25 @@ export const sendChatMessage = async (
     throw error;
   }
 };
+
+export const getMessages = async (threadId: string): Promise<string[]> => {
+  try {
+    const response = await fetch(`${API_URL}/question?threadId=${threadId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authService.getCurrentUser()?.token}`,
+      },      
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error getting messages:", error);
+    throw error;
+  }
+};
