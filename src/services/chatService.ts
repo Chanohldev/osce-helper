@@ -38,6 +38,12 @@ class ChatService {
   }
 
   async getConversations(): Promise<Conversation[]> {
+    // Validar el token antes de hacer la llamada
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     const response = await fetch(`${API_URL}/threads`, {
       headers: {
         "Content-Type": "application/json",
@@ -77,6 +83,12 @@ class ChatService {
   }
 
   async setCurrentConversation(conversationId: string): Promise<void> {
+    // Validar el token antes de hacer la llamada
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     if (this.conversations.some((conv) => conv.id === conversationId)) {
       this.currentConversationId = conversationId;
     }
@@ -124,6 +136,12 @@ class ChatService {
   }
 
   async sendMessage(content: string): Promise<Message> {
+    // Validar el token antes de hacer la llamada
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     if (!this.currentConversationId) {
       const title = content.split(" ")[0];
       const description = content.split(" ").slice(1).join(" ");  

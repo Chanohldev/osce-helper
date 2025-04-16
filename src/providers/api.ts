@@ -12,6 +12,11 @@ export const createThread = async (
   description: string
 ): Promise<ThreadResponse> => {
   try {
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     const response = await fetch(`${API_URL}/threads`, {
       method: "POST",
       headers: {
@@ -41,6 +46,11 @@ export const sendChatMessage = async (
   message: string
 ): Promise<string> => {
   try {
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     const response = await fetch(`${API_URL}/question`, {
       method: "POST",
       headers: {
@@ -71,6 +81,11 @@ export const sendChatMessage = async (
 
 export const getMessages = async (threadId: string): Promise<string[]> => {
   try {
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     const response = await fetch(`${API_URL}/question?threadId=${threadId}`, {
       method: "GET",
       headers: {

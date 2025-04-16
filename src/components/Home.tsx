@@ -21,8 +21,20 @@ export const Home = () => {
     const isDarkMode = document.documentElement.classList.contains('dark');
     setDarkMode(isDarkMode);
     
-    // Cargar la conversación actual
-    setCurrentConversation(chatService.getCurrentConversation());
+    // Validar y renovar el token si es necesario
+    const validateToken = async () => {
+      const isValid = await authService.validateAndRefreshToken();
+      if (!isValid) {
+        // Si el token no es válido y no se pudo renovar, redirigir al login
+        window.location.href = '/login';
+        return;
+      }
+      
+      // Cargar la conversación actual
+      setCurrentConversation(chatService.getCurrentConversation());
+    };
+    
+    validateToken();
   }, []);
 
   const handleLogout = () => {
@@ -42,6 +54,13 @@ export const Home = () => {
   };
 
   const handleConversationSelect = async (conversationId: string) => {
+    // Validar el token antes de hacer la llamada
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      window.location.href = '/login';
+      return;
+    }
+    
     await chatService.setCurrentConversation(conversationId);
     setCurrentConversation(chatService.getCurrentConversation());
   };
@@ -53,6 +72,13 @@ export const Home = () => {
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
+    
+    // Validar el token antes de hacer la llamada
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      window.location.href = '/login';
+      return;
+    }
     
     setIsLoading(true);
     

@@ -113,6 +113,75 @@ class AuthService {
     return !!this.getCurrentUser();
   }
 
+  async validateAndRefreshToken(): Promise<boolean> {
+    const user = this.getCurrentUser();
+    if (!user || !user.token || !user.refreshToken) {
+      return false;
+    }
+
+    try {
+      // Verificar si el token ha expirado
+      const tokenData = JSON.parse(atob(user.token.split('.')[1]));
+      const expirationTime = tokenData.exp * 1000; // Convertir a milisegundos
+      const currentTime = Date.now();
+      
+      // Si el token no ha expirado, no es necesario renovarlo
+      if (currentTime < expirationTime) {
+        return true;
+      }
+      
+      // Si el token ha expirado, intentar renovarlo
+      return await this.refreshToken();
+    } catch (error) {
+      console.error("Error validating token:", error);
+      return false;
+    }
+  }
+
+  async refreshToken(): Promise<boolean> {
+    const user = this.getCurrentUser();
+    if (!user || !user.refreshToken) {
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/auth/refresh-token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
+        },
+        body: JSON.stringify({ refreshToken: user.refreshToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error refreshing token");
+      }
+
+      const res = await response.json();
+      if (res.status !== 'success') {
+        throw new Error("Failed to refresh token");
+      }
+
+      // Actualizar el token en el usuario actual
+      if (this.currentUser) {
+        this.currentUser.token = res.data.accessToken;
+        this.currentUser.refreshToken = res.data.refreshToken;
+        
+        // Actualizar en localStorage
+        localStorage.setItem("auth_token", res.data.accessToken);
+        localStorage.setItem("user", JSON.stringify(this.currentUser));
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      // Si hay un error al renovar el token, cerrar sesión
+      this.logout();
+      return false;
+    }
+  }
+
   async register(
     email: string,
     password: string,
