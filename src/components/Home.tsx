@@ -41,8 +41,8 @@ export const Home = () => {
     }
   };
 
-  const handleConversationSelect = (conversationId: string) => {
-    chatService.setCurrentConversation(conversationId);
+  const handleConversationSelect = async (conversationId: string) => {
+    await chatService.setCurrentConversation(conversationId);
     setCurrentConversation(chatService.getCurrentConversation());
   };
 

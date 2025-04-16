@@ -1,6 +1,7 @@
 import { createThread, getMessages, sendChatMessage } from "../providers/api";
 import { API_URL } from "../config/api.config";
 import { authService } from "./authService";
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Message {
   id: string;
@@ -67,6 +68,7 @@ class ChatService {
     if (!this.currentConversationId) {
       return null;
     }
+    console.log("getCurrentConversation", this.currentConversationId, this.conversations);
     return (
       this.conversations.find(
         (conv) => conv.id === this.currentConversationId
@@ -88,9 +90,12 @@ class ChatService {
       throw new Error("Conversación no encontrada");
     }
 
+    // Limpiar los mensajes existentes antes de añadir los nuevos
+    conversation.messages = [];
+    
     const messageHistory: Message[] = messages.map((a: any) => {
       return {
-        id: new Date().getTime().toString(),
+        id: uuidv4(),
         content: a.message,
         role: a.role,
         timestamp: a.createdAt,
