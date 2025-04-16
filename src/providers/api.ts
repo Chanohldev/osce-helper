@@ -12,6 +12,11 @@ export const createThread = async (
   description: string
 ): Promise<ThreadResponse> => {
   try {
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     const response = await fetch(`${API_URL}/threads`, {
       method: "POST",
       headers: {
@@ -41,6 +46,11 @@ export const sendChatMessage = async (
   message: string
 ): Promise<string> => {
   try {
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     const response = await fetch(`${API_URL}/question`, {
       method: "POST",
       headers: {
@@ -65,6 +75,33 @@ export const sendChatMessage = async (
     return text.message;
   } catch (error) {
     console.error("Error sending chat message:", error);
+    throw error;
+  }
+};
+
+export const getMessages = async (threadId: string): Promise<string[]> => {
+  try {
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
+    const response = await fetch(`${API_URL}/question?threadId=${threadId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authService.getCurrentUser()?.token}`,
+      },      
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error getting messages:", error);
     throw error;
   }
 };

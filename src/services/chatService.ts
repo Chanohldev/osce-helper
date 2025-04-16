@@ -1,6 +1,8 @@
-import { createThread, sendChatMessage } from "../providers/api";
+import { createThread, getMessages, sendChatMessage } from "../providers/api";
 import { API_URL } from "../config/api.config";
 import { authService } from "./authService";
+import { v4 as uuidv4 } from 'uuid';
+
 export interface Message {
   id: string;
   content: string;
@@ -36,6 +38,12 @@ class ChatService {
   }
 
   async getConversations(): Promise<Conversation[]> {
+    // Validar el token antes de hacer la llamada
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     const response = await fetch(`${API_URL}/threads`, {
       headers: {
         "Content-Type": "application/json",
@@ -66,6 +74,7 @@ class ChatService {
     if (!this.currentConversationId) {
       return null;
     }
+    console.log("getCurrentConversation", this.currentConversationId, this.conversations);
     return (
       this.conversations.find(
         (conv) => conv.id === this.currentConversationId
@@ -73,10 +82,39 @@ class ChatService {
     );
   }
 
-  setCurrentConversation(conversationId: string): void {
+  async setCurrentConversation(conversationId: string): Promise<void> {
+    // Validar el token antes de hacer la llamada
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     if (this.conversations.some((conv) => conv.id === conversationId)) {
       this.currentConversationId = conversationId;
     }
+
+    const messages = await getMessages(conversationId);
+
+    const conversation = this.conversations.find(
+      (conv) => conv.id === conversationId
+    );
+    if (!conversation) {
+      throw new Error("Conversación no encontrada");
+    }
+
+    // Limpiar los mensajes existentes antes de añadir los nuevos
+    conversation.messages = [];
+    
+    const messageHistory: Message[] = messages.map((a: any) => {
+      return {
+        id: uuidv4(),
+        content: a.message,
+        role: a.role,
+        timestamp: a.createdAt,
+      };
+    });
+
+    conversation.messages.push(...messageHistory);
     console.log("setCurrentConversation", conversationId, this.currentConversationId);
   }
 
@@ -98,6 +136,12 @@ class ChatService {
   }
 
   async sendMessage(content: string): Promise<Message> {
+    // Validar el token antes de hacer la llamada
+    const isValid = await authService.validateAndRefreshToken();
+    if (!isValid) {
+      throw new Error("Token no válido");
+    }
+    
     if (!this.currentConversationId) {
       const title = content.split(" ")[0];
       const description = content.split(" ").slice(1).join(" ");  
